@@ -37,7 +37,7 @@ describe('GameEngine fixed‑timestep loop', () => {
     // First frame scheduled by start()
     expect(rafCallbacks.length).toBe(1);
 
-    // Simulate four frames with exact timestep (16.666ms) to account for the initial frame that does not trigger an update
+    // Simulate four frames with exact timestep (16.666ms); each frame triggers an update, resulting in four total updates
     const step = 1000 / 60; // ~16.6667
     for (let i = 0; i < 4; i++) {
       currentTime += step;

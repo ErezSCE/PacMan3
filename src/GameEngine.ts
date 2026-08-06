@@ -52,9 +52,12 @@ export class GameEngine {
   }
 
   /** Pause the loop – the current state is kept so that `resume` continues. */
+  /** Pause the loop – the current state is kept but accumulated time is cleared to avoid catch‑up updates on resume. */
   pause(): void {
     if (!this.isRunning) return;
     this.isRunning = false;
+    // Reset accumulated time to prevent a burst of updates when resumed.
+    this.accumulated = 0;
     if (this.frameId !== null) {
       cancelAnimationFrame(this.frameId);
       this.frameId = null;
@@ -70,7 +73,11 @@ export class GameEngine {
     this.loop();
   }
 
-  /** Stop the engine completely – equivalent to pause for now. */
+  /**
+   * Stop the engine completely – currently equivalent to `pause()`.
+   * This method is provided for future extensions where a full stop may need
+   * additional cleanup (e.g., resetting state, releasing resources).
+   */
   stop(): void {
     this.pause();
   }
