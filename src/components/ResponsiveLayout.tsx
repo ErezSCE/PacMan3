@@ -28,7 +28,7 @@ export const ResponsiveLayout: React.FC = () => {
       timeoutId = window.setTimeout(() => {
         setLabel(getLabel(window.innerWidth));
         timeoutId = undefined;
-      }, 0);
+      }, 100);
     };
     window.addEventListener("resize", handler);
     return () => {

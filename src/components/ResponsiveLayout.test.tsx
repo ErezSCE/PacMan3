@@ -39,21 +39,22 @@ describe("ResponsiveLayout breakpoint tests", () => {
 
   it("updates label on window resize after component has mounted", () => {
     // Render with default width (desktop)
+    // Use fake timers to control debounce timeout
+    jest.useFakeTimers();
+    // Render with default width (desktop)
     render(<ResponsiveLayout />);
     const label = screen.getByTestId("layout-label");
     expect(label).toHaveTextContent("desktop");
 
-    // Use fake timers to control debounce timeout
-    jest.useFakeTimers();
     // Change width to mobile and dispatch resize
     // @ts-ignore
     window.innerWidth = 500;
     act(() => {
       window.dispatchEvent(new Event("resize"));
     });
-    // Fast-forward debounce timer
+    // Fast-forward debounce timer (100ms as set in component)
     act(() => {
-      jest.runAllTimers();
+      jest.advanceTimersByTime(100);
     });
     // Verify label updated
     expect(label).toHaveTextContent("mobile");
