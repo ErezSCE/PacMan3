@@ -15,6 +15,10 @@
  */
 export type UpdateCallback = (dt: number) => void;
 export type WarningCallback = (msg: string) => void;
+/** Simple logger interface for warning messages */
+export interface Logger {
+  warn: (msg: string) => void;
+}
 
 export class GameEngine {
   private readonly updateCallback: UpdateCallback;
@@ -26,11 +30,12 @@ export class GameEngine {
   private lastTime = 0;
   private accumulated = 0;
   private frameId: number | null = null;
-
   constructor(
     updateCallback: UpdateCallback,
     options?: {
       warningCallback?: WarningCallback;
+      /** Logger for warning messages – defaults to console */
+      logger?: Logger;
       /** Fixed update step in milliseconds – defaults to 1000/60 (≈16.666ms) */
       timestep?: number;
       /** FPS threshold for warnings – defaults to 55 FPS */
@@ -38,10 +43,14 @@ export class GameEngine {
     }
   ) {
     this.updateCallback = updateCallback;
-    this.warningCallback = options?.warningCallback ?? ((msg) => console.warn(msg));
+    // Use provided warningCallback or logger.warn, defaulting to console.warn
+    this.logger = options?.logger ?? console;
+    this.warningCallback = options?.warningCallback ?? ((msg) => this.logger.warn(msg));
     this.timestep = options?.timestep ?? 1000 / 60;
     this.fpsThreshold = options?.fpsThreshold ?? 55;
   }
+
+  private logger: Logger;
 
   /** Start the engine loop. If already running this is a no‑op. */
   start(): void {
@@ -51,7 +60,6 @@ export class GameEngine {
     this.loop();
   }
 
-  /** Pause the loop – the current state is kept so that `resume` continues. */
   /** Pause the loop – the current state is kept but accumulated time is cleared to avoid catch‑up updates on resume. */
   pause(): void {
     if (!this.isRunning) return;
