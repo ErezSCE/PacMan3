@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { App } from './App';
+import { Root } from './index';
 import { registerServiceWorker } from './serviceWorker';
 
 const rootElement = document.getElementById('root');
@@ -8,7 +8,12 @@ if (!rootElement) {
   throw new Error('Root element not found');
 }
 const root = ReactDOM.createRoot(rootElement);
-root.render(<App />);
+root.render(<Root />);
 
 // Register the service worker for offline support
-registerServiceWorker();
+try {
+  registerServiceWorker();
+} catch (err) {
+  // eslint-disable-next-line no-console
+  console.error('Service worker registration failed:', err);
+}
