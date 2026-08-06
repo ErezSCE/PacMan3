@@ -9,6 +9,7 @@ class AudioManager {
   private audioCache: Map<AudioKey, HTMLAudioElement> = new Map();
   private audioSrcMap: Map<AudioKey, string> = new Map();
   private loadingPromises: Map<AudioKey, Promise<HTMLAudioElement>> = new Map();
+  private pendingSrcMap: Map<AudioKey, string> = new Map();
   private mute: boolean = false;
   private loadTimeoutMs: number = 5000; // default timeout in ms
 
@@ -17,10 +18,18 @@ class AudioManager {
    */
   public setLoadTimeout(ms: number): void {
     if (ms <= 0) {
-      throw new Error('Load timeout must be positive');
+      throw new InvalidArgumentError('Load timeout must be positive');
     }
     this.loadTimeoutMs = ms;
   }
+
+/** Custom error for invalid arguments */
+export class InvalidArgumentError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'InvalidArgumentError';
+  }
+}
   private muteListeners: Set<(muted: boolean) => void> = new Set();
 
   /** Set mute state for all loaded audio */
@@ -67,6 +76,11 @@ class AudioManager {
     }
     // If a load is already in progress, return the existing promise
     if (this.loadingPromises.has(key)) {
+      const pendingSrc = this.pendingSrcMap.get(key);
+      if (pendingSrc && pendingSrc !== src) {
+        // Source mismatch for in‑flight load
+        return Promise.reject(new Error(`Audio source mismatch for pending load of key "${key}"`));
+      }
       return this.loadingPromises.get(key)!;
     }
     // Create audio element but do NOT cache it yet; cache only after it can play through.
@@ -108,8 +122,15 @@ class AudioManager {
         audio.addEventListener('loadedmetadata', onCanPlay);
     });
 
+    // Store pending source for this load
+    this.pendingSrcMap.set(key, src);
     // Store the loading promise so concurrent calls share it
     this.loadingPromises.set(key, loadPromise);
+    // Ensure pending src is cleared when promise settles
+    const clearPending = () => {
+      this.pendingSrcMap.delete(key);
+    };
+    loadPromise.then(clearPending).catch(clearPending);
     return loadPromise;
   }
 
