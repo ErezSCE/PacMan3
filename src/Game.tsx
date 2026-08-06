@@ -9,6 +9,7 @@ const Game: React.FC = () => {
     <div data-testid="game-component">
       <p>Game component loaded</p>
     </div>
+    </>
   );
 };
 
