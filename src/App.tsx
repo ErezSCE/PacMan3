@@ -1,6 +1,6 @@
 import React, { Suspense, lazy } from 'react';
 
-const Game = lazy(() => import('./Game'));
+const Game = lazy(() => Promise.resolve().then(() => import('./Game')));
 
 export const App: React.FC = () => {
   return (
