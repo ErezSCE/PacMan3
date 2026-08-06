@@ -1,14 +1,14 @@
 # QA Lead — Test Plan
 
 **Agent**: qa-lead  
-**Generated**: 2026-08-06T13:44:44.845Z
+**Generated**: 2026-08-06T13:57:39.383Z
 
 ---
 
 ## Test Plan
 
 {
-  "scope": "Test plan covers core functionality of the Pac-Man style game, mapping each acceptance criterion from component-level stories (STORY-001 to STORY-008) to unit, integration, or end‑to‑end tests.",
+  "scope": "Test plan covers core functionality of the Pac-Man style game, mapping each acceptance criterion from component-level stories (STORY-001 to STORY-008) to unit, integration, or end-to-end tests.",
   "unit": [
     {
       "target": "src/modules/AssetLoader.ts::loadAssets",
