@@ -10,9 +10,11 @@ const Game: React.FC = () => {
     const handler = (dir: Direction) => {
       setDirection(dir);
     };
+    inputHandler.init();
     inputHandler.subscribe(handler);
     return () => {
       inputHandler.unsubscribe(handler);
+      inputHandler.destroy();
     };
   }, []);
 

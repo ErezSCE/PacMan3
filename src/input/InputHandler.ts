@@ -57,6 +57,11 @@ class InputHandler {
   }
 
   private handleKeyDown(e: KeyboardEvent): void {
+    // Prevent default scrolling behavior for arrow keys
+    const arrowKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+    if (arrowKeys.includes(e.key)) {
+      e.preventDefault();
+    }
     const key = e.key.toLowerCase();
     let direction: Direction = 'none';
     switch (key) {
