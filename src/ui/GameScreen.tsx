@@ -1,10 +1,11 @@
 import React, { useContext, useState } from 'react';
 import { UIContext } from './UIContext';
-import { LevelComplete } from './LevelComplete';
+import { MuteToggle } from '../components/MuteToggle';
 
 /**
  * Simple placeholder for the actual game canvas.
- * Provides buttons to pause the game, trigger a game‑over state, and simulate level completion.
+ * Provides buttons to pause the game and to trigger a game‑over state for testing.
+ * Includes a mute toggle UI component.
  */
 export const GameScreen: React.FC = () => {
   const { dispatch } = useContext(UIContext);
