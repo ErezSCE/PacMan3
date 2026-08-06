@@ -13,7 +13,7 @@ if (!rootElement) {
   // Register Service Worker even if UI cannot render.
   registerServiceWorker();
   // Exit early to avoid rendering errors.
-  // eslint-disable-next-line @typescript-eslint/no-useless-return
+
   return;
 }
 const root = ReactDOM.createRoot(rootElement);

@@ -33,8 +33,8 @@ afterAll(() => {
 test('service worker registers install and fetch event listeners', async () => {
   // Import the service worker script after setting up the mock
   // The script registers listeners on the mocked `self`
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  require('../../public/serviceWorker.js');
+  // Dynamically import the service worker script after setting up the mock
+  await import('../../public/serviceWorker.js');
 
   // Verify that addEventListener was called for both events
   expect(addEventListenerMock).toHaveBeenCalledTimes(2);
@@ -45,8 +45,10 @@ test('service worker registers install and fetch event listeners', async () => {
 test('install event caches essential assets', async () => {
   // Import the script to register listeners again (reset mock calls)
   addEventListenerMock.mockClear();
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  require('../../public/serviceWorker.js');
+  // Reset module registry to ensure the service worker script is re-evaluated
+  jest.resetModules();
+  // Dynamically import the service worker script after setting up the mock
+  await import('../../public/serviceWorker.js');
 
   // Capture the install handler function passed to addEventListener
   const installHandler = addEventListenerMock.mock.calls.find(
