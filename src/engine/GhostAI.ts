@@ -31,7 +31,41 @@ export class GhostAI {
     return this.state;
   }
 
+  private stateChangeListeners: Set<(newState: GhostState) => void> = new Set();
+
+  /** Subscribe to state changes. Returns an unsubscribe function. */
+  public subscribeStateChange(listener: (newState: GhostState) => void): () => void {
+    this.stateChangeListeners.add(listener);
+    return () => {
+      this.stateChangeListeners.delete(listener);
+    };
+  }
+
+  private notifyStateChange(): void {
+    this.stateChangeListeners.forEach((listener) => {
+      try {
+        listener(this.state);
+      } catch (e) {
+        // swallow listener errors to avoid breaking state machine
+      }
+    });
+  }
+
+  private isValidTransition(event: TransitionEvent): boolean {
+    // Define allowed transitions based on current state
+    const allowed: Record<GhostState, TransitionEvent[]> = {
+      scatter: ['START_CHASE', 'POWER_PELLET_EATEN', 'RESET'],
+      chase: ['START_SCATTER', 'POWER_PELLET_EATEN', 'RESET'],
+      frightened: ['START_CHASE', 'START_SCATTER', 'GHOST_EATEN', 'RESET'],
+      eyes: ['START_CHASE', 'START_SCATTER', 'RESET'],
+    };
+    return allowed[this.state].includes(event);
+  }
+
   public transition(event: TransitionEvent): void {
+    if (!this.isValidTransition(event)) {
+      throw new Error(`Invalid transition ${event} from state ${this.state}`);
+    }
     switch (event) {
       case 'START_CHASE':
         this.state = 'chase';
@@ -49,8 +83,11 @@ export class GhostAI {
         this.state = 'scatter';
         break;
       default:
-        // No-op for unknown events
-        break;
+        // Exhaustive check – should never happen
+        const _exhaustiveCheck: never = event;
+        throw new Error(`Unhandled transition event: ${_exhaustiveCheck}`);
     }
+    this.notifyStateChange();
   }
 }
+

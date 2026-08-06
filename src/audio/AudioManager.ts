@@ -54,13 +54,20 @@ class AudioManager {
     // Return a promise that resolves immediately, but will reject if an error occurs before resolution.
     return new Promise<HTMLAudioElement>((resolve, reject) => {
       const onError = (e: Event) => {
-        audio.removeEventListener('error', onError);
+        cleanup();
         this.audioCache.delete(key);
         reject(e);
       };
+      const onCanPlay = () => {
+        cleanup();
+        resolve(audio);
+      };
+      const cleanup = () => {
+        audio.removeEventListener('error', onError);
+        audio.removeEventListener('canplaythrough', onCanPlay);
+      };
       audio.addEventListener('error', onError);
-      // Resolve immediately after setting up error handling.
-      resolve(audio);
+      audio.addEventListener('canplaythrough', onCanPlay);
     });
   }
 
@@ -81,7 +88,8 @@ class AudioManager {
     try {
       await audio.play();
     } catch (e) {
-      // Swallow playback errors (e.g., user gesture required)
+      // Log playback errors for debugging
+      console.warn('Audio playback failed', e);
     }
   }
 

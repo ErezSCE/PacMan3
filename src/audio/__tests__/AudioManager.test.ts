@@ -89,9 +89,10 @@ describe('AudioManager', () => {
   });
 
   test('mute state propagates to loaded audio', async () => {
-    await audioManager.load(testKey, testSrc);
+    const loadPromise = audioManager.load(testKey, testSrc);
     const mockAudioInstance = audioInstances[0];
     mockAudioInstance.triggerCanPlay();
+    await loadPromise;
     audioManager.setMute(true);
     expect(mockAudioInstance.muted).toBe(true);
     audioManager.setMute(false);
