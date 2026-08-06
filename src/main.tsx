@@ -1,6 +1,6 @@
 
 import ReactDOM from 'react-dom/client';
-import { Root } from './index.tsx';
+import { Root } from './index';
 import { registerServiceWorker } from './serviceWorker';
 import { logger } from './logger';
 
