@@ -15,7 +15,7 @@ export interface HUDProps {
   /** Remaining lives */
   lives: number;
   /** Highest score ever achieved (e.g., from IndexedDB) */
-  highScore: number;
+  highScore?: number;
 }
 
 export const HUD: React.FC<HUDProps> = ({ score, lives, highScore }) => {
@@ -23,7 +23,9 @@ export const HUD: React.FC<HUDProps> = ({ score, lives, highScore }) => {
     <section aria-label="hud" className="hud">
       <div aria-label="player-score">Score: {score}</div>
       <div aria-label="player-lives">Lives: {lives}</div>
-      <div aria-label="high-score">High Score: {highScore}</div>
+      {highScore !== undefined && (
+        <div aria-label="high-score">High Score: {highScore}</div>
+      )}
     </section>
   );
 };

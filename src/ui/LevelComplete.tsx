@@ -23,7 +23,7 @@ export const LevelComplete: React.FC<LevelCompleteProps> = ({ level, delayMs = 2
       dispatch({ type: 'SET_SCREEN', payload: 'countdown' });
     }, delayMs);
     return () => clearTimeout(timer);
-  }, [dispatch, delayMs]);
+  }, [dispatch, delayMs, level]);
 
   return (
     <section aria-label="level complete" className="level-complete">

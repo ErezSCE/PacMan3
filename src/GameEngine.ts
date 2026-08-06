@@ -97,6 +97,7 @@ export class GameEngine {
   }
 
   private readonly warningCallback: WarningCallback;
+  private readonly initialTimestep: number; // initial timestep value
   private timestep: number; // ms per fixed update
   private readonly fpsThreshold: number; // FPS below which we warn
 
@@ -138,6 +139,7 @@ if (options?.timestep !== undefined) {
   }
 }
 this.timestep = options?.timestep ?? 1000 / 60;
+    this.initialTimestep = this.timestep;
     // Validate fpsThreshold if provided (must be positive finite number)
 if (options?.fpsThreshold !== undefined) {
   if (typeof options.fpsThreshold !== 'number' || !Number.isFinite(options.fpsThreshold) || options.fpsThreshold <= 0) {
@@ -180,9 +182,10 @@ this.fpsThreshold = options?.fpsThreshold ?? 55;
   }
 
   /**
-   * Stop the engine completely – currently equivalent to `pause()`.
-   * This method is provided for future extensions where a full stop may need
-   * additional cleanup (e.g., resetting state, releasing resources).
+   * Stop the engine completely – pauses the loop and resets timing state
+   * (`accumulated` and `lastTime`). This method is currently equivalent to
+   * `pause()` plus the timing reset, and is provided for future extensions
+   * where additional cleanup may be required.
    */
   /**
    * Reset the game state to initial values. This clears score, lives, level, and any
@@ -194,8 +197,8 @@ this.fpsThreshold = options?.fpsThreshold ?? 55;
     this.lives = 3;
     this.level = 1;
     this.extraLivesEarned = 0;
-    // Optionally reset timestep to default if it was changed via level progression
-    // but we keep the current timestep to preserve difficulty scaling.
+    // Reset timestep to its initial value to ensure difficulty scaling starts fresh.
+    this.timestep = this.initialTimestep;
   }
 
   stop(): void {
