@@ -70,7 +70,8 @@ export class GameEngine {
     if (this.isRunning) return;
     this.isRunning = true;
     this.lastTime = performance.now();
-    this.loop();
+    // Schedule the first frame via requestAnimationFrame to avoid a zero‑delta update.
+    this.frameId = requestAnimationFrame(this.loop);
   }
 
   /** Pause the loop – the current state is kept but accumulated time is cleared to avoid catch‑up updates on resume. */
@@ -91,7 +92,8 @@ export class GameEngine {
     this.isRunning = true;
     // Reset lastTime so that the first delta after resume is not huge.
     this.lastTime = performance.now();
-    this.loop();
+    // Schedule the first frame after resume via requestAnimationFrame.
+    this.frameId = requestAnimationFrame(this.loop);
   }
 
   /**
@@ -100,7 +102,15 @@ export class GameEngine {
    * additional cleanup (e.g., resetting state, releasing resources).
    */
   stop(): void {
-    this.pause();
+    // Fully stop the engine: pause loop and reset timing state.
+    this.isRunning = false;
+    if (this.frameId !== null) {
+      cancelAnimationFrame(this.frameId);
+      this.frameId = null;
+    }
+    // Reset timing state to initial values.
+    this.accumulated = 0;
+    this.lastTime = 0;
   }
 
   /** The core loop – called via `requestAnimationFrame`. */

@@ -6,7 +6,8 @@ import inputHandler, { Direction } from './input/InputHandler';
 const Game: React.FC = () => {
 
   useEffect(() => {
-    const handler = (dir: Direction) => { void dir; // suppress unused variable warning
+    const handler = (_direction: Direction) => {
+      void _direction; // suppress unused variable warning
       // Direction state removed; handler retained for side‑effects if needed.
     };
     inputHandler.init();

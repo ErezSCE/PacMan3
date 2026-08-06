@@ -45,7 +45,7 @@ describe('GameEngine fixed‑timestep loop', () => {
       cb(performance.now());
     }
 
-    // The first frame after start does not produce an update, so we expect three updates total
+    // The first frame after start does not produce an update, so we expect four updates total
     expect(update).toHaveBeenCalledTimes(4);
     // Each call receives the fixed timestep value
     update.mock.calls.forEach((call) => {

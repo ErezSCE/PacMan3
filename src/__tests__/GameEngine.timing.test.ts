@@ -58,7 +58,7 @@ describe('GameEngine pause and resume behavior', () => {
     expect(update).toHaveBeenCalledTimes(1);
   });
 
-  test('resume continues updates after pause', () => {
+  test('resume continues updates after pause without catch‑up burst', () => {
     const update = jest.fn();
     const engine = new GameEngine(update);
     engine.start();
