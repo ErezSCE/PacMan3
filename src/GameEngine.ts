@@ -33,10 +33,64 @@ export interface Logger {
  * The engine is deliberately lightweight and does not depend on any UI framework.
  */
 export class GameEngine {
+  // Game state tracking
+  private score: number = 0;
+  private lives: number = 3;
+  private level: number = 1;
+  private extraLifeThreshold: number = 10000; // points per extra life
+  private extraLivesEarned: number = 0;
+  private onExtraLife?: () => void;
+  private onLevelUp?: (newLevel: number) => void;
+
   
   private readonly updateCallback: UpdateCallback;
+  // Callback setters
+  public setOnExtraLife(callback: () => void) {
+    this.onExtraLife = callback;
+  }
+  public setOnLevelUp(callback: (newLevel: number) => void) {
+    this.onLevelUp = callback;
+  }
+
+  // State manipulation methods
+  public addScore(points: number) {
+    this.score += points;
+    // Check for extra lives
+    while (this.score >= this.extraLifeThreshold * (this.extraLivesEarned + 1)) {
+      this.lives += 1;
+      this.extraLivesEarned += 1;
+      if (this.onExtraLife) this.onExtraLife();
+    }
+  }
+
+  public loseLife() {
+    if (this.lives > 0) this.lives -= 1;
+  }
+
+  public getScore() {
+    return this.score;
+  }
+  public getLives() {
+    return this.lives;
+  }
+  public getLevel() {
+    return this.level;
+  }
+  public getTimestep() {
+    return this.timestep;
+  }
+
+  // Called when a level is completed
+  public completeLevel() {
+    this.level += 1;
+    // Simple difficulty scaling: reduce timestep by 5% but not below 5ms
+    const newTimestep = Math.max(5, this.timestep * 0.95);
+    this.timestep = newTimestep;
+    if (this.onLevelUp) this.onLevelUp(this.level);
+  }
+
   private readonly warningCallback: WarningCallback;
-  private readonly timestep: number; // ms per fixed update
+  private timestep: number; // ms per fixed update
   private readonly fpsThreshold: number; // FPS below which we warn
 
   private isRunning = false;
