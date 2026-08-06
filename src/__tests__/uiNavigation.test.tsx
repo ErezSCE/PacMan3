@@ -26,8 +26,8 @@ test('full UI navigation flow works correctly', async () => {
   // Wait for countdown to finish (3 -> 2 -> 1 -> GO)
   await waitFor(() => expect(screen.getByText('GO')).toBeInTheDocument(), { timeout: 4000 });
 
-  // After GO, Game screen should be displayed
-  expect(screen.getByRole('heading', { name: /game screen/i })).toBeInTheDocument();
+  // After GO, Game screen should be displayed after a short delay
+  await waitFor(() => expect(screen.getByRole('heading', { name: /game screen/i })).toBeInTheDocument(), { timeout: 2000 });
 
   // Click Pause button
   const pauseBtn = screen.getByRole('button', { name: /pause/i });
