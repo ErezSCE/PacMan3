@@ -98,4 +98,21 @@ describe('AudioManager', () => {
     audioManager.setMute(false);
     expect(mockAudioInstance.muted).toBe(false);
   });
+
+  test('load rejects and clears cache on error', async () => {
+    const loadPromise = audioManager.load(testKey, testSrc);
+    expect(audioInstances).toHaveLength(1);
+    const mockAudioInstance = audioInstances[0];
+    // Simulate error event
+    mockAudioInstance.triggerError();
+    await expect(loadPromise).rejects.toBeDefined();
+    // After error, cache should not have the audio; loading again creates new instance
+    const secondLoadPromise = audioManager.load(testKey, testSrc);
+    expect(audioInstances).toHaveLength(2); // new audio element created
+    const secondMock = audioInstances[1];
+    secondMock.triggerCanPlay();
+    const audio2 = await secondLoadPromise;
+    expect(audio2).toBeDefined();
+    expect(audio2.src).toBe(testSrc);
+  });
 });

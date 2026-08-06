@@ -7,6 +7,7 @@ type AudioKey = string;
 
 class AudioManager {
   private audioCache: Map<AudioKey, HTMLAudioElement> = new Map();
+  private loadingPromises: Map<AudioKey, Promise<HTMLAudioElement>> = new Map();
   private mute: boolean = false;
   private muteListeners: Set<(muted: boolean) => void> = new Set();
 
@@ -43,23 +44,31 @@ class AudioManager {
    *  Returns a promise that resolves when the audio can be played.
    */
   public load(key: AudioKey, src: string): Promise<HTMLAudioElement> {
+    // Return cached audio if already loaded and ready
     if (this.audioCache.has(key)) {
       return Promise.resolve(this.audioCache.get(key)!);
     }
-    // Create audio element and cache it immediately.
+    // If a load is already in progress, return the existing promise
+    if (this.loadingPromises.has(key)) {
+      return this.loadingPromises.get(key)!;
+    }
+    // Create audio element but do NOT cache it yet; cache only after it can play through.
     const audio = new Audio(src);
     audio.muted = this.mute;
-    this.audioCache.set(key, audio);
 
-    // Return a promise that resolves immediately, but will reject if an error occurs before resolution.
-    return new Promise<HTMLAudioElement>((resolve, reject) => {
+    const loadPromise = new Promise<HTMLAudioElement>((resolve, reject) => {
       const onError = (e: Event) => {
         cleanup();
-        this.audioCache.delete(key);
-        reject(e);
+        // Ensure no stale entries remain
+        this.loadingPromises.delete(key);
+        // Reject with a defined error object
+        reject(e || new Error('Audio load error'));
       };
       const onCanPlay = () => {
         cleanup();
+        // Cache the ready audio for future calls
+        this.audioCache.set(key, audio);
+        this.loadingPromises.delete(key);
         resolve(audio);
       };
       const cleanup = () => {
@@ -69,6 +78,10 @@ class AudioManager {
       audio.addEventListener('error', onError);
       audio.addEventListener('canplaythrough', onCanPlay);
     });
+
+    // Store the loading promise so concurrent calls share it
+    this.loadingPromises.set(key, loadPromise);
+    return loadPromise;
   }
 
   /** Play an audio asset. If not loaded yet, it will be loaded using the provided src.
@@ -90,6 +103,8 @@ class AudioManager {
     } catch (e) {
       // Log playback errors for debugging
       console.warn('Audio playback failed', e);
+      // Propagate error to callers
+      throw e;
     }
   }
 

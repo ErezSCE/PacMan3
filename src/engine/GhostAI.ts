@@ -24,6 +24,14 @@ type TransitionEvent =
  * - GHOST_EATEN   -> eyes
  * - RESET         -> scatter (initial state)
  */
+/**
+ * GhostAI implements a simple finite‑state machine for ghost behavior.
+ * NOTE: This implementation only supports explicit transitions via the
+ * `transition` method. Real Pac‑Man ghosts also transition automatically
+ * (e.g., frightened → chase after a timer expires). Those timed transitions
+ * are not modeled here. If such behavior is required, a method like
+ * `handleTimerExpiry()` could be added to trigger the appropriate event.
+ */
 export class GhostAI {
   private state: GhostState = 'scatter';
 

@@ -7,10 +7,12 @@ import audioManager from '../audio/AudioManager';
  * Clicking the button toggles the mute state via AudioManager.
  */
 export const MuteToggle: React.FC = () => {
-  const [muted, setMuted] = useState<boolean>(audioManager.isMuted());
+  const [muted, setMuted] = useState<boolean>(false);
 
-  // Subscribe to mute state changes instead of polling
+  // Sync initial mute state and subscribe to future changes
   useEffect(() => {
+    // Ensure UI reflects current mute state even if it changed before mount
+    setMuted(audioManager.isMuted());
     const unsubscribe = audioManager.subscribeMute((newMuted) => {
       setMuted(newMuted);
     });
