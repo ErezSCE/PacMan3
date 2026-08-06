@@ -1,4 +1,3 @@
-import React from 'react';
 
 /**
  * Heads‑up display showing the current game status.

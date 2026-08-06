@@ -32,7 +32,9 @@ export interface Logger {
  *
  * The engine is deliberately lightweight and does not depend on any UI framework.
  */
+/* eslint import/prefer-default-export: "off" */
 export class GameEngine {
+  private logger: Logger;
   // Game state tracking
   private score: number = 0;
   private lives: number = 3;
@@ -45,15 +47,15 @@ export class GameEngine {
   
   private readonly updateCallback: UpdateCallback;
   // Callback setters
-  public setOnExtraLife(callback: () => void) {
+  public setOnExtraLife(callback: () => void): void {
     this.onExtraLife = callback;
   }
-  public setOnLevelUp(callback: (newLevel: number) => void) {
+  public setOnLevelUp(callback: (newLevel: number) => void): void {
     this.onLevelUp = callback;
   }
 
   // State manipulation methods
-  public addScore(points: number) {
+  public addScore(points: number): void {
     this.score += points;
     // Check for extra lives
     while (this.score >= this.extraLifeThreshold * (this.extraLivesEarned + 1)) {
@@ -63,25 +65,25 @@ export class GameEngine {
     }
   }
 
-  public loseLife() {
+  public loseLife(): void {
     if (this.lives > 0) this.lives -= 1;
   }
 
-  public getScore() {
+  public getScore(): number {
     return this.score;
   }
-  public getLives() {
+  public getLives(): number {
     return this.lives;
   }
-  public getLevel() {
+  public getLevel(): number {
     return this.level;
   }
-  public getTimestep() {
+  public getTimestep(): number {
     return this.timestep;
   }
 
   // Called when a level is completed
-  public completeLevel() {
+  public completeLevel(): void {
     this.level += 1;
     // Simple difficulty scaling: reduce timestep by 5% but not below 5ms
     const newTimestep = Math.max(5, this.timestep * 0.95);
@@ -116,8 +118,6 @@ export class GameEngine {
     this.timestep = options?.timestep ?? 1000 / 60;
     this.fpsThreshold = options?.fpsThreshold ?? 55;
   }
-
-  private logger: Logger;
 
   /** Start the engine loop. If already running this is a no‑op. */
   start(): void {
