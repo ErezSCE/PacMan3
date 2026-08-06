@@ -39,7 +39,7 @@ export class GameEngine {
   private score: number = 0;
   private lives: number = 3;
   private level: number = 1;
-  private extraLifeThreshold: number = 10000; // points per extra life
+  private extraLifeThreshold: number; // points per extra life
   private extraLivesEarned: number = 0;
   private onExtraLife?: () => void;
   private onLevelUp?: (newLevel: number) => void;
