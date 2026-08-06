@@ -1,26 +1,19 @@
-import React from 'react';
+
 import ReactDOM from 'react-dom/client';
-import { App } from './App';
-import './index.css';
+import { Root } from './index';
 import { registerServiceWorker } from './serviceWorker';
+import { logger } from './logger';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
-  // In test environments or non-browser contexts, the root element may be absent.
-  // Log a warning and continue to register the Service Worker.
-  // eslint-disable-next-line no-console
-  console.warn('Root element not found');
-  // Register Service Worker even if UI cannot render.
-  registerServiceWorker();
-  // Exit early to avoid rendering errors.
-
-  return;
+  throw new Error('Root element with id "root" not found');
 }
 const root = ReactDOM.createRoot(rootElement);
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
-// Register Service Worker for offline support
-registerServiceWorker();
+root.render(<Root />);
+
+// Register the service worker for offline support
+try {
+  registerServiceWorker();
+} catch (err: unknown) {
+  logger.error('Service worker registration failed:', err);
+}

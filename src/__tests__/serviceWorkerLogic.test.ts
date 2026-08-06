@@ -64,6 +64,9 @@ test('install event caches essential assets', async () => {
   // @ts-ignore – we are calling the handler directly
   installHandler(mockEvent);
 
+  // Wait for any pending promises to resolve
+  await Promise.resolve();
+
   // Ensure caches.open was called with the expected cache name
   expect(mockCaches.open).toHaveBeenCalledWith('static-cache');
   // Ensure the URLs to cache were added
@@ -72,6 +75,9 @@ test('install event caches essential assets', async () => {
     '/index.html',
     '/offline.html',
   ]);
-  // Ensure waitUntil was called with a Promise
+  // Ensure waitUntil was called with a Promise and resolve it
   expect(waitUntilMock).toHaveBeenCalled();
+  const waitUntilArg = waitUntilMock.mock.calls[0][0];
+  // Await the promise to ensure addAll is called
+  await waitUntilArg;
 });
