@@ -20,7 +20,20 @@ export interface Logger {
   warn: (msg: string) => void;
 }
 
+/**
+ * GameEngine
+ *
+ * Provides a fixed‑timestep game loop with optional FPS monitoring.
+ * Public API:
+ *  - start(): void – begins the loop
+ *  - pause(): void – pauses the loop
+ *  - resume(): void – resumes a paused loop
+ *  - stop(): void – stops the loop (currently alias for pause)
+ *
+ * The engine is deliberately lightweight and does not depend on any UI framework.
+ */
 export class GameEngine {
+  
   private readonly updateCallback: UpdateCallback;
   private readonly warningCallback: WarningCallback;
   private readonly timestep: number; // ms per fixed update
