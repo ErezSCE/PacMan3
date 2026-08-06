@@ -7,8 +7,20 @@ type AudioKey = string;
 
 class AudioManager {
   private audioCache: Map<AudioKey, HTMLAudioElement> = new Map();
+  private audioSrcMap: Map<AudioKey, string> = new Map();
   private loadingPromises: Map<AudioKey, Promise<HTMLAudioElement>> = new Map();
   private mute: boolean = false;
+  private loadTimeoutMs: number = 5000; // default timeout in ms
+
+  /**
+   * Set the load timeout in milliseconds. Allows adjusting for slower networks.
+   */
+  public setLoadTimeout(ms: number): void {
+    if (ms <= 0) {
+      throw new Error('Load timeout must be positive');
+    }
+    this.loadTimeoutMs = ms;
+  }
   private muteListeners: Set<(muted: boolean) => void> = new Set();
 
   /** Set mute state for all loaded audio */
@@ -46,6 +58,11 @@ class AudioManager {
   public load(key: AudioKey, src: string): Promise<HTMLAudioElement> {
     // Return cached audio if already loaded and ready
     if (this.audioCache.has(key)) {
+      const existingSrc = this.audioSrcMap.get(key);
+      if (existingSrc && existingSrc !== src) {
+        // Source mismatch: reject to avoid playing wrong sound
+        return Promise.reject(new Error(`Audio source mismatch for key "${key}"`));
+      }
       return Promise.resolve(this.audioCache.get(key)!);
     }
     // If a load is already in progress, return the existing promise
@@ -62,7 +79,8 @@ class AudioManager {
         cleanup();
         this.loadingPromises.delete(key);
         reject(new Error('Audio load timeout'));
-      }, 5000);
+      }, this.loadTimeoutMs);
+
 
       const onError = (e: Event) => {
         cleanup();
@@ -75,6 +93,7 @@ class AudioManager {
         cleanup();
         // Cache the ready audio for future calls
         this.audioCache.set(key, audio);
+        this.audioSrcMap.set(key, src);
         this.loadingPromises.delete(key);
         resolve(audio);
       };

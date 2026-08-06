@@ -54,7 +54,9 @@ export class GhostAI {
       try {
         listener(this.state);
       } catch (e) {
-        // swallow listener errors to avoid breaking state machine
+        // Log listener errors for observability
+        console.error('GhostAI stateChange listener error:', e);
+        // Continue notifying other listeners
       }
     });
   }
