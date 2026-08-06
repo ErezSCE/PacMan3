@@ -1,8 +1,11 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { UIProvider } from '../ui/UIContext';
 import { UIRoot } from '../ui/UIRoot';
+
+// Use fake timers for deterministic UI flow tests
+jest.useFakeTimers();
 
 /**
  * This test covers the navigation flow between all UI screens:
@@ -23,11 +26,13 @@ test('full UI navigation flow works correctly', async () => {
 
   // Countdown should appear
   expect(screen.getByText('3')).toBeInTheDocument();
-  // Wait for countdown to finish (3 -> 2 -> 1 -> GO)
-  await waitFor(() => expect(screen.getByText('GO')).toBeInTheDocument(), { timeout: 4000 });
+  // Fast-forward countdown: 3 -> 2 -> 1 -> GO (each step 1000ms)
+  act(() => { jest.advanceTimersByTime(3000); });
+  expect(screen.getByText('GO')).toBeInTheDocument();
 
-  // After GO, Game screen should be displayed after a short delay
-  await waitFor(() => expect(screen.getByRole('heading', { name: /game screen/i })).toBeInTheDocument(), { timeout: 2000 });
+  // After GO, advance the goDelayMs (default 1000ms) to transition to game screen
+  act(() => { jest.advanceTimersByTime(1000); });
+  expect(screen.getByRole('heading', { name: /game screen/i })).toBeInTheDocument();
 
   // Click Pause button
   const pauseBtn = screen.getByRole('button', { name: /pause/i });

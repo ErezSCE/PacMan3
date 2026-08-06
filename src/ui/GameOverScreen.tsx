@@ -15,6 +15,11 @@ export const GameOverScreen: React.FC = () => {
   };
 
   const handleSubmit = () => {
+    // Validate that initials are not empty before proceeding.
+    if (initials.trim() === '') {
+      // Could show an error message; for now we simply do nothing.
+      return;
+    }
     // In a real app we would persist the score here.
     // For the UI flow we simply navigate back to the start screen.
     dispatch({ type: 'SET_SCREEN', payload: 'start' });

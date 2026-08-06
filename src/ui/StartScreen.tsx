@@ -20,7 +20,7 @@ export const StartScreen: React.FC = () => {
         <li>BBB – 8000</li>
         <li>CCC – 6000</li>
       </ul>
-      <button onClick={handleStart}>Start Game</button>
+      <button type="button" onClick={handleStart}>Start Game</button>
     </section>
   );
 };
