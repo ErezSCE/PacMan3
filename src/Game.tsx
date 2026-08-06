@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 
 import { OnScreenControls } from './components/OnScreenControls';
 import inputHandler, { Direction } from './input/InputHandler';
 
 const Game: React.FC = () => {
-  const [direction, setDirection] = useState<Direction | null>(null);
 
   useEffect(() => {
-    const handler = (dir: Direction) => {
-      setDirection(dir);
+    const handler = (_direction: Direction) => {
+      void _direction; // suppress unused variable warning
+      // Direction state removed; handler retained for side‑effects if needed.
     };
     inputHandler.init();
     inputHandler.subscribe(handler);

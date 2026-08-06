@@ -1,15 +1,19 @@
-import React from 'react';
+
 import ReactDOM from 'react-dom/client';
-import { App } from './App';
-import './index.css';
+import { Root } from './index';
+import { registerServiceWorker } from './serviceWorker';
+import { logger } from './logger';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
-  throw new Error('Root element not found');
+  throw new Error('Root element with id "root" not found');
 }
 const root = ReactDOM.createRoot(rootElement);
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+root.render(<Root />);
+
+// Register the service worker for offline support
+try {
+  registerServiceWorker();
+} catch (err: unknown) {
+  logger.error('Service worker registration failed:', err);
+}
