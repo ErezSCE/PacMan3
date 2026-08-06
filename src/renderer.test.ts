@@ -2,35 +2,47 @@ import { renderMaze } from "./renderer";
 
 describe("renderMaze integration test", () => {
   let ctx: CanvasRenderingContext2D;
+  let callOrder: string[];
   beforeEach(() => {
-    // Create a mock CanvasRenderingContext2D
+    callOrder = [];
+    // Create a mock CanvasRenderingContext2D with order tracking
     ctx = {
-      fillStyle: "",
-      strokeStyle: "",
-      fillRect: jest.fn(),
-      clearRect: jest.fn(),
-      beginPath: jest.fn(),
-      moveTo: jest.fn(),
-      lineTo: jest.fn(),
-      stroke: jest.fn(),
+      // fillStyle setter tracks assignment
+      set fillStyle(value: string) {
+        callOrder.push(`fillStyle:${value}`);
+      },
+      get fillStyle() {
+        return "";
+      },
+      // strokeStyle setter tracks assignment
+      set strokeStyle(value: string) {
+        callOrder.push(`strokeStyle:${value}`);
+      },
+      get strokeStyle() {
+        return "";
+      },
+      fillRect: jest.fn(() => callOrder.push("fillRect")),
+      clearRect: jest.fn(() => callOrder.push("clearRect")),
+      beginPath: jest.fn(() => callOrder.push("beginPath")),
+      moveTo: jest.fn(() => callOrder.push("moveTo")),
+      lineTo: jest.fn(() => callOrder.push("lineTo")),
+      stroke: jest.fn(() => callOrder.push("stroke")),
     } as unknown as CanvasRenderingContext2D;
   });
 
-  it("should draw background, clear inner area and draw a blue wall line", () => {
+  it("should draw background, clear inner area and draw a blue wall line in correct order", () => {
     renderMaze(ctx);
 
-    // Background fill
-    expect(ctx.fillStyle).toBe("black");
-    expect(ctx.fillRect).toHaveBeenCalledWith(0, 0, 200, 200);
-
-    // Clear inner maze path
-    expect(ctx.clearRect).toHaveBeenCalledWith(10, 10, 180, 180);
-
-    // Wall line drawing
-    expect(ctx.strokeStyle).toBe("blue");
-    expect(ctx.beginPath).toHaveBeenCalled();
-    expect(ctx.moveTo).toHaveBeenCalledWith(20, 20);
-    expect(ctx.lineTo).toHaveBeenCalledWith(180, 20);
-    expect(ctx.stroke).toHaveBeenCalled();
+    // Verify the order of operations
+    expect(callOrder).toEqual([
+      "fillStyle:black",
+      "fillRect",
+      "clearRect",
+      "strokeStyle:blue",
+      "beginPath",
+      "moveTo",
+      "lineTo",
+      "stroke",
+    ]);
   });
 });

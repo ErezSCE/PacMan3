@@ -19,9 +19,24 @@ export const ResponsiveLayout: React.FC = () => {
   const [label, setLabel] = useState<string>(getLabel(window.innerWidth));
 
   useEffect(() => {
-    const handler = () => setLabel(getLabel(window.innerWidth));
+    let timeoutId: number | undefined;
+    const handler = () => {
+      if (timeoutId !== undefined) {
+        clearTimeout(timeoutId);
+      }
+      // Debounce using a short timeout to batch rapid resize events
+      timeoutId = window.setTimeout(() => {
+        setLabel(getLabel(window.innerWidth));
+        timeoutId = undefined;
+      }, 0);
+    };
     window.addEventListener("resize", handler);
-    return () => window.removeEventListener("resize", handler);
+    return () => {
+      window.removeEventListener("resize", handler);
+      if (timeoutId !== undefined) {
+        clearTimeout(timeoutId);
+      }
+    };
   }, []);
 
   return <div data-testid="layout-label">{label}</div>;

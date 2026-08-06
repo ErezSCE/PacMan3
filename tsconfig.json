@@ -10,7 +10,7 @@
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
     "noEmit": true,
-    "types": ["jest", "node"]
+    "types": ["jest", "node", "react", "react-dom"]
   },
   "include": ["src", "jest.setup.ts"]
 }
