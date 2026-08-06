@@ -1,7 +1,8 @@
+/* eslint-disable import/prefer-default-export */
 /**
- * Fixed‑timestep GameEngine loop.
+ * Fixed-timestep GameEngine loop.
  *
- * The engine runs an update callback at a constant timestep (default 60 Hz).
+ * The engine runs an update callback at a constant timestep (default 60 Hz).
  * It uses `requestAnimationFrame` for the render loop, accumulates the real
  * delta time and calls the update callback one or more times per frame to
  * "catch up" when the frame time exceeds the fixed step.
@@ -32,11 +33,72 @@ export interface Logger {
  *
  * The engine is deliberately lightweight and does not depend on any UI framework.
  */
+
 export class GameEngine {
+  private logger: Logger;
+  // Game state tracking
+  private score: number = 0;
+  private lives: number = 3;
+  private level: number = 1;
+  private extraLifeThreshold: number; // points per extra life (default 10000)
+  private extraLivesEarned: number = 0;
+  private onExtraLife?: () => void;
+  private onLevelUp?: (newLevel: number) => void;
+
   
   private readonly updateCallback: UpdateCallback;
+  // Callback setters
+  public setOnExtraLife(callback: () => void): void {
+    this.onExtraLife = callback;
+  }
+  public setOnLevelUp(callback: (newLevel: number) => void): void {
+    this.onLevelUp = callback;
+  }
+
+  // State manipulation methods
+  public addScore(points: number): void {
+    // Validate points: must be a finite non‑negative number
+    if (typeof points !== 'number' || !Number.isFinite(points) || points < 0) {
+      throw new TypeError('points must be a finite non‑negative number');
+    }
+    this.score += points;
+    // Check for extra lives – extraLifeThreshold is guaranteed positive by constructor validation
+    while (this.score >= this.extraLifeThreshold * (this.extraLivesEarned + 1)) {
+      this.lives += 1;
+      this.extraLivesEarned += 1;
+      if (this.onExtraLife) this.onExtraLife();
+    }
+  }
+
+  public loseLife(): void {
+    if (this.lives > 0) this.lives -= 1;
+  }
+
+  public getScore(): number {
+    return this.score;
+  }
+  public getLives(): number {
+    return this.lives;
+  }
+  public getLevel(): number {
+    return this.level;
+  }
+  public getTimestep(): number {
+    return this.timestep;
+  }
+
+  // Called when a level is completed
+  public completeLevel(): void {
+    this.level += 1;
+    // Simple difficulty scaling: reduce timestep by 5% but not below 5ms
+    const newTimestep = Math.max(5, this.timestep * 0.95);
+    this.timestep = newTimestep;
+    if (this.onLevelUp) this.onLevelUp(this.level);
+  }
+
   private readonly warningCallback: WarningCallback;
-  private readonly timestep: number; // ms per fixed update
+  private readonly initialTimestep: number; // initial timestep value
+  private timestep: number; // ms per fixed update
   private readonly fpsThreshold: number; // FPS below which we warn
 
   private isRunning = false;
@@ -53,17 +115,40 @@ export class GameEngine {
       timestep?: number;
       /** FPS threshold for warnings – defaults to 55 FPS */
       fpsThreshold?: number;
+      /** Points required per extra life – must be positive, defaults to 10000 */
+      extraLifeThreshold?: number;
     }
   ) {
+    // Validate extraLifeThreshold if provided
+    if (options?.extraLifeThreshold !== undefined) {
+      if (typeof options.extraLifeThreshold !== 'number' || !Number.isFinite(options.extraLifeThreshold) || options.extraLifeThreshold <= 0) {
+        throw new TypeError('extraLifeThreshold must be a positive finite number');
+      }
+    }
+
     this.updateCallback = updateCallback;
     // Use provided warningCallback or logger.warn, defaulting to console.warn
-    this.logger = options?.logger ?? console;
+    // Default no-op logger to avoid console usage
+const defaultLogger: Logger = { warn: () => {} };
+this.logger = options?.logger ?? defaultLogger;
     this.warningCallback = options?.warningCallback ?? ((msg) => this.logger.warn(msg));
-    this.timestep = options?.timestep ?? 1000 / 60;
-    this.fpsThreshold = options?.fpsThreshold ?? 55;
+    // Validate timestep if provided (must be positive finite number)
+if (options?.timestep !== undefined) {
+  if (typeof options.timestep !== 'number' || !Number.isFinite(options.timestep) || options.timestep <= 0) {
+    throw new TypeError('timestep must be a positive finite number');
   }
-
-  private logger: Logger;
+}
+this.timestep = options?.timestep ?? 1000 / 60;
+    this.initialTimestep = this.timestep;
+    // Validate fpsThreshold if provided (must be positive finite number)
+if (options?.fpsThreshold !== undefined) {
+  if (typeof options.fpsThreshold !== 'number' || !Number.isFinite(options.fpsThreshold) || options.fpsThreshold <= 0) {
+    throw new TypeError('fpsThreshold must be a positive finite number');
+  }
+}
+this.fpsThreshold = options?.fpsThreshold ?? 55;
+    this.extraLifeThreshold = options?.extraLifeThreshold ?? 10000;
+  }
 
   /** Start the engine loop. If already running this is a no‑op. */
   start(): void {
@@ -97,10 +182,25 @@ export class GameEngine {
   }
 
   /**
-   * Stop the engine completely – currently equivalent to `pause()`.
-   * This method is provided for future extensions where a full stop may need
-   * additional cleanup (e.g., resetting state, releasing resources).
+   * Stop the engine completely – pauses the loop and resets timing state
+   * (`accumulated` and `lastTime`). This method is currently equivalent to
+   * `pause()` plus the timing reset, and is provided for future extensions
+   * where additional cleanup may be required.
    */
+  /**
+   * Reset the game state to initial values. This clears score, lives, level, and any
+   * accumulated extra lives. It does NOT start the loop – callers should invoke
+   * `start()` after resetting if they wish to run the engine.
+   */
+  reset(): void {
+    this.score = 0;
+    this.lives = 3;
+    this.level = 1;
+    this.extraLivesEarned = 0;
+    // Reset timestep to its initial value to ensure difficulty scaling starts fresh.
+    this.timestep = this.initialTimestep;
+  }
+
   stop(): void {
     // Fully stop the engine: pause loop and reset timing state.
     this.isRunning = false;
