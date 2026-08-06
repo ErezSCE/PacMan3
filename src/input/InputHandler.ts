@@ -12,7 +12,12 @@ class InputHandler {
   private callbacks: Set<Callback> = new Set();
   private touchStartX: number | null = null;
   private touchStartY: number | null = null;
-  private readonly swipeThreshold = 30; // pixels
+  private swipeThreshold: number;
+
+  constructor(config?: { swipeThreshold?: number }) {
+    // Set swipe threshold, default 30px
+    this.swipeThreshold = config?.swipeThreshold ?? 30;
+  }
 
   private boundKeyDown = this.handleKeyDown.bind(this);
   private boundTouchStart = this.handleTouchStart.bind(this);
@@ -30,9 +35,11 @@ class InputHandler {
     if (this.initialized) {
       return; // idempotent guard
     }
-    window.addEventListener('keydown', this.boundKeyDown);
-    window.addEventListener('touchstart', this.boundTouchStart);
-    window.addEventListener('touchend', this.boundTouchEnd);
+    if (typeof window !== 'undefined') {
+      window.addEventListener('keydown', this.boundKeyDown);
+      window.addEventListener('touchstart', this.boundTouchStart);
+      window.addEventListener('touchend', this.boundTouchEnd);
+    }
     this.initialized = true;
   }
 
