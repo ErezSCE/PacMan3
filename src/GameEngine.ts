@@ -39,7 +39,7 @@ export class GameEngine {
   private score: number = 0;
   private lives: number = 3;
   private level: number = 1;
-  private extraLifeThreshold: number; // points per extra life
+  private extraLifeThreshold: number; // points per extra life (default 10000)
   private extraLivesEarned: number = 0;
   private onExtraLife?: () => void;
   private onLevelUp?: (newLevel: number) => void;
@@ -56,8 +56,12 @@ export class GameEngine {
 
   // State manipulation methods
   public addScore(points: number): void {
+    // Validate points: must be a finite non‑negative number
+    if (typeof points !== 'number' || !Number.isFinite(points) || points < 0) {
+      throw new TypeError('points must be a finite non‑negative number');
+    }
     this.score += points;
-    // Check for extra lives
+    // Check for extra lives – extraLifeThreshold is guaranteed positive by constructor validation
     while (this.score >= this.extraLifeThreshold * (this.extraLivesEarned + 1)) {
       this.lives += 1;
       this.extraLivesEarned += 1;
@@ -109,14 +113,24 @@ export class GameEngine {
       timestep?: number;
       /** FPS threshold for warnings – defaults to 55 FPS */
       fpsThreshold?: number;
+      /** Points required per extra life – must be positive, defaults to 10000 */
+      extraLifeThreshold?: number;
     }
   ) {
+    // Validate extraLifeThreshold if provided
+    if (options?.extraLifeThreshold !== undefined) {
+      if (typeof options.extraLifeThreshold !== 'number' || !Number.isFinite(options.extraLifeThreshold) || options.extraLifeThreshold <= 0) {
+        throw new TypeError('extraLifeThreshold must be a positive finite number');
+      }
+    }
+
     this.updateCallback = updateCallback;
     // Use provided warningCallback or logger.warn, defaulting to console.warn
     this.logger = options?.logger ?? console;
     this.warningCallback = options?.warningCallback ?? ((msg) => this.logger.warn(msg));
     this.timestep = options?.timestep ?? 1000 / 60;
     this.fpsThreshold = options?.fpsThreshold ?? 55;
+    this.extraLifeThreshold = options?.extraLifeThreshold ?? 10000;
   }
 
   /** Start the engine loop. If already running this is a no‑op. */
