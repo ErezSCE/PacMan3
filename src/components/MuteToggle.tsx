@@ -9,19 +9,19 @@ import audioManager from '../audio/AudioManager';
 export const MuteToggle: React.FC = () => {
   const [muted, setMuted] = useState<boolean>(audioManager.isMuted());
 
-  // Keep local state in sync if mute is changed elsewhere
+  // Subscribe to mute state changes instead of polling
   useEffect(() => {
-    const interval = setInterval(() => {
-      const current = audioManager.isMuted();
-      setMuted(current);
-    }, 200);
-    return () => clearInterval(interval);
+    const unsubscribe = audioManager.subscribeMute((newMuted) => {
+      setMuted(newMuted);
+    });
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   const handleToggle = () => {
-    const newMute = !muted;
-    audioManager.setMute(newMute);
-    setMuted(newMute);
+    // Toggle mute via AudioManager; UI will update via subscription
+    audioManager.setMute(!muted);
   };
 
   return (

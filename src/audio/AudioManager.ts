@@ -8,6 +8,7 @@ type AudioKey = string;
 class AudioManager {
   private audioCache: Map<AudioKey, HTMLAudioElement> = new Map();
   private mute: boolean = false;
+  private muteListeners: Set<(muted: boolean) => void> = new Set();
 
   /** Set mute state for all loaded audio */
   public setMute(mute: boolean): void {
@@ -15,6 +16,23 @@ class AudioManager {
     this.audioCache.forEach((audio) => {
       audio.muted = mute;
     });
+    // Notify listeners about mute state change
+    this.muteListeners.forEach((listener) => {
+      try {
+        listener(this.mute);
+      } catch (e) {
+        // swallow listener errors to avoid breaking setMute
+      }
+    });
+  }
+
+  /** Subscribe to mute state changes. Returns an unsubscribe function. */
+  public subscribeMute(listener: (muted: boolean) => void): () => void {
+    this.muteListeners.add(listener);
+    // Return cleanup function
+    return () => {
+      this.muteListeners.delete(listener);
+    };
   }
 
   public isMuted(): boolean {
@@ -28,22 +46,22 @@ class AudioManager {
     if (this.audioCache.has(key)) {
       return Promise.resolve(this.audioCache.get(key)!);
     }
-    // Create audio element and cache it immediately. Tests control readiness via mock events.
+    // Create audio element and cache it immediately.
     const audio = new Audio(src);
     audio.muted = this.mute;
     this.audioCache.set(key, audio);
-    // Attach error handling to reject if loading fails.
-    const onError = (e: Event) => {
-      audio.removeEventListener('error', onError);
-      this.audioCache.delete(key);
-      // Reject with the error event.
-      // Note: In production, you might want to handle this more gracefully.
-      // For simplicity, we throw here.
-      throw e;
-    };
-    audio.addEventListener('error', onError);
-    // Resolve immediately; callers can wait for canplaythrough via their own logic if needed.
-    return Promise.resolve(audio);
+
+    // Return a promise that resolves immediately, but will reject if an error occurs before resolution.
+    return new Promise<HTMLAudioElement>((resolve, reject) => {
+      const onError = (e: Event) => {
+        audio.removeEventListener('error', onError);
+        this.audioCache.delete(key);
+        reject(e);
+      };
+      audio.addEventListener('error', onError);
+      // Resolve immediately after setting up error handling.
+      resolve(audio);
+    });
   }
 
   /** Play an audio asset. If not loaded yet, it will be loaded using the provided src.
