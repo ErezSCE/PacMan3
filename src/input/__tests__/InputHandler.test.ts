@@ -31,12 +31,8 @@ describe('InputHandler', () => {
 
   afterEach(() => {
     inputHandler.unsubscribe(callback);
-    // Remove listeners to avoid side effects between tests
-    // Since InputHandler does not expose a cleanup, we manually remove listeners
-    // This is safe for test isolation.
-    window.removeEventListener('keydown', (inputHandler as any).boundKeyDown);
-    window.removeEventListener('touchstart', (inputHandler as any).boundTouchStart);
-    window.removeEventListener('touchend', (inputHandler as any).boundTouchEnd);
+    // Clean up listeners via destroy method
+    inputHandler.destroy();
   });
 
   test('should notify on ArrowUp key', () => {

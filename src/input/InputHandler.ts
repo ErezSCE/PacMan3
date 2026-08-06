@@ -22,11 +22,19 @@ class InputHandler {
     // bindings are set in property initializers
   }
 
+
   /** Initialise event listeners */
   public init(): void {
     window.addEventListener('keydown', this.boundKeyDown);
     window.addEventListener('touchstart', this.boundTouchStart);
     window.addEventListener('touchend', this.boundTouchEnd);
+  }
+
+  /** Clean up event listeners added by init(). */
+  public destroy(): void {
+    window.removeEventListener('keydown', this.boundKeyDown);
+    window.removeEventListener('touchstart', this.boundTouchStart);
+    window.removeEventListener('touchend', this.boundTouchEnd);
   }
 
   /** Subscribe to direction events */

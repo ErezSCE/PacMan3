@@ -1,7 +1,7 @@
 import React from 'react';
 import './OnScreenControls.css';
 
-type Direction = 'up' | 'down' | 'left' | 'right';
+import inputHandler, { Direction } from '../input/InputHandler';
 
 interface Props {
   /**
@@ -17,6 +17,8 @@ interface Props {
  */
 export const OnScreenControls: React.FC<Props> = ({ onDirection }) => {
   const handleClick = (dir: Direction) => {
+    // Emit direction via InputHandler singleton
+    inputHandler.press(dir);
     if (onDirection) onDirection(dir);
   };
 

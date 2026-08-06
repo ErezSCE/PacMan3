@@ -1,8 +1,21 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { OnScreenControls } from './components/OnScreenControls';
+import inputHandler, { Direction } from './input/InputHandler';
 
 const Game: React.FC = () => {
+  const [direction, setDirection] = useState<Direction | null>(null);
+
+  useEffect(() => {
+    const handler = (dir: Direction) => {
+      setDirection(dir);
+    };
+    inputHandler.subscribe(handler);
+    return () => {
+      inputHandler.unsubscribe(handler);
+    };
+  }, []);
+
   return (
     <>
       <OnScreenControls />

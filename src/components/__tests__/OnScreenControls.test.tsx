@@ -4,8 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { OnScreenControls } from '../OnScreenControls';
 import { axe, toHaveNoViolations } from 'jest-axe';
 
-// Extend jest expect with axe matcher (already done in setupTests, but ensure type safety)
-expect.extend({ toHaveNoViolations });
+// No need to extend expect here; setupTests already adds the matcher
 
 describe('OnScreenControls component', () => {
   const directions = [
