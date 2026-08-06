@@ -1,7 +1,8 @@
+/* eslint-disable import/prefer-default-export */
 /**
- * Fixed‑timestep GameEngine loop.
+ * Fixed-timestep GameEngine loop.
  *
- * The engine runs an update callback at a constant timestep (default 60 Hz).
+ * The engine runs an update callback at a constant timestep (default 60 Hz).
  * It uses `requestAnimationFrame` for the render loop, accumulates the real
  * delta time and calls the update callback one or more times per frame to
  * "catch up" when the frame time exceeds the fixed step.
@@ -32,7 +33,7 @@ export interface Logger {
  *
  * The engine is deliberately lightweight and does not depend on any UI framework.
  */
-/* eslint import/prefer-default-export: "off" */
+
 export class GameEngine {
   private logger: Logger;
   // Game state tracking
@@ -126,10 +127,24 @@ export class GameEngine {
 
     this.updateCallback = updateCallback;
     // Use provided warningCallback or logger.warn, defaulting to console.warn
-    this.logger = options?.logger ?? console;
+    // Default no-op logger to avoid console usage
+const defaultLogger: Logger = { warn: () => {} };
+this.logger = options?.logger ?? defaultLogger;
     this.warningCallback = options?.warningCallback ?? ((msg) => this.logger.warn(msg));
-    this.timestep = options?.timestep ?? 1000 / 60;
-    this.fpsThreshold = options?.fpsThreshold ?? 55;
+    // Validate timestep if provided (must be positive finite number)
+if (options?.timestep !== undefined) {
+  if (typeof options.timestep !== 'number' || !Number.isFinite(options.timestep) || options.timestep <= 0) {
+    throw new TypeError('timestep must be a positive finite number');
+  }
+}
+this.timestep = options?.timestep ?? 1000 / 60;
+    // Validate fpsThreshold if provided (must be positive finite number)
+if (options?.fpsThreshold !== undefined) {
+  if (typeof options.fpsThreshold !== 'number' || !Number.isFinite(options.fpsThreshold) || options.fpsThreshold <= 0) {
+    throw new TypeError('fpsThreshold must be a positive finite number');
+  }
+}
+this.fpsThreshold = options?.fpsThreshold ?? 55;
     this.extraLifeThreshold = options?.extraLifeThreshold ?? 10000;
   }
 
@@ -169,6 +184,20 @@ export class GameEngine {
    * This method is provided for future extensions where a full stop may need
    * additional cleanup (e.g., resetting state, releasing resources).
    */
+  /**
+   * Reset the game state to initial values. This clears score, lives, level, and any
+   * accumulated extra lives. It does NOT start the loop – callers should invoke
+   * `start()` after resetting if they wish to run the engine.
+   */
+  reset(): void {
+    this.score = 0;
+    this.lives = 3;
+    this.level = 1;
+    this.extraLivesEarned = 0;
+    // Optionally reset timestep to default if it was changed via level progression
+    // but we keep the current timestep to preserve difficulty scaling.
+  }
+
   stop(): void {
     // Fully stop the engine: pause loop and reset timing state.
     this.isRunning = false;

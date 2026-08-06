@@ -7,6 +7,8 @@
  * test and reuse in different parts of the UI (e.g., overlay during gameplay
  * or a static preview on the start screen).
  */
+import React from 'react';
+
 export interface HUDProps {
   /** Current player score */
   score: number;
