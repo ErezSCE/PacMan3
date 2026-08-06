@@ -86,8 +86,42 @@ describe('InputHandler', () => {
     expect(callback).toHaveBeenCalledWith('up');
   });
 
+  test('should detect swipe left', () => {
+    const touchStart = new TouchEvent('touchstart', {
+      touches: [new Touch({ identifier: 0, target: window, clientX: 100, clientY: 50 })],
+    });
+    const touchEnd = new TouchEvent('touchend', {
+      changedTouches: [new Touch({ identifier: 0, target: window, clientX: 10, clientY: 55 })],
+    });
+    window.dispatchEvent(touchStart);
+    window.dispatchEvent(touchEnd);
+    expect(callback).toHaveBeenCalledWith('left');
+  });
+
+  test('should detect swipe down', () => {
+    const touchStart = new TouchEvent('touchstart', {
+      touches: [new Touch({ identifier: 0, target: window, clientX: 50, clientY: 10 })],
+    });
+    const touchEnd = new TouchEvent('touchend', {
+      changedTouches: [new Touch({ identifier: 0, target: window, clientX: 55, clientY: 100 })],
+    });
+    window.dispatchEvent(touchStart);
+    window.dispatchEvent(touchEnd);
+    expect(callback).toHaveBeenCalledWith('down');
+  });
+
   test('press method should notify direction', () => {
     inputHandler.press('left');
     expect(callback).toHaveBeenCalledWith('left');
+  });
+
+  test('init called twice should not duplicate events', () => {
+    // Call init again (idempotent)
+    inputHandler.init();
+    const event = new KeyboardEvent('keydown', { key: 'ArrowRight' });
+    window.dispatchEvent(event);
+    // Should be called only once despite two init calls
+    expect(callback).toHaveBeenCalledTimes(1);
+    expect(callback).toHaveBeenCalledWith('right');
   });
 });

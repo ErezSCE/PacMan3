@@ -24,17 +24,28 @@ class InputHandler {
 
 
   /** Initialise event listeners */
+  private initialized: boolean = false;
+
+  /** Initialise event listeners */
   public init(): void {
+    if (this.initialized) {
+      return; // idempotent guard
+    }
     window.addEventListener('keydown', this.boundKeyDown);
     window.addEventListener('touchstart', this.boundTouchStart);
     window.addEventListener('touchend', this.boundTouchEnd);
+    this.initialized = true;
   }
 
   /** Clean up event listeners added by init(). */
   public destroy(): void {
+    if (!this.initialized) {
+      return; // idempotent guard
+    }
     window.removeEventListener('keydown', this.boundKeyDown);
     window.removeEventListener('touchstart', this.boundTouchStart);
     window.removeEventListener('touchend', this.boundTouchEnd);
+    this.initialized = false;
   }
 
   /** Subscribe to direction events */
@@ -49,6 +60,10 @@ class InputHandler {
 
   /** Called by on‑screen button components */
   public press(direction: Direction): void {
+    // Guard against emitting 'none' direction which carries no meaning
+    if (direction === 'none') {
+      return;
+    }
     this.notify(direction);
   }
 
