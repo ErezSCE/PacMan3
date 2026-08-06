@@ -39,4 +39,13 @@ describe('OnScreenControls component', () => {
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
+
+  it('invokes onDirection callback when a button is clicked', async () => {
+    const onDirection = jest.fn();
+    render(<OnScreenControls onDirection={onDirection} />);
+    const upButton = screen.getByRole('button', { name: 'Move up' });
+    await userEvent.click(upButton);
+    expect(onDirection).toHaveBeenCalledTimes(1);
+    expect(onDirection).toHaveBeenCalledWith('up');
+  });
 });
