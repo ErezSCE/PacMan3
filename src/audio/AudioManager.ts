@@ -57,6 +57,13 @@ class AudioManager {
     audio.muted = this.mute;
 
     const loadPromise = new Promise<HTMLAudioElement>((resolve, reject) => {
+      // Timeout fallback to avoid hanging indefinitely
+      const timeoutId = setTimeout(() => {
+        cleanup();
+        this.loadingPromises.delete(key);
+        reject(new Error('Audio load timeout'));
+      }, 5000);
+
       const onError = (e: Event) => {
         cleanup();
         // Ensure no stale entries remain
@@ -74,9 +81,12 @@ class AudioManager {
       const cleanup = () => {
         audio.removeEventListener('error', onError);
         audio.removeEventListener('canplaythrough', onCanPlay);
+        audio.removeEventListener('loadedmetadata', onCanPlay);
+        clearTimeout(timeoutId);
       };
       audio.addEventListener('error', onError);
       audio.addEventListener('canplaythrough', onCanPlay);
+        audio.addEventListener('loadedmetadata', onCanPlay);
     });
 
     // Store the loading promise so concurrent calls share it
