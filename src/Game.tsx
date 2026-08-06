@@ -19,12 +19,12 @@ const Game: React.FC = () => {
   }, []);
 
   return (
-    <>
+    <section className="game-wrapper">
       <OnScreenControls />
-    <div data-testid="game-component">
-      <p>Game component loaded</p>
-    </div>
-    </>
+      <div data-testid="game-component">
+        <p>Game component loaded</p>
+      </div>
+    </section>
   );
 };
 

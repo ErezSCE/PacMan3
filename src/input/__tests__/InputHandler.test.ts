@@ -63,50 +63,50 @@ describe('InputHandler', () => {
   });
 
   test('should detect swipe right', () => {
-    const touchStart = new TouchEvent('touchstart', {
-      touches: [new Touch({ identifier: 0, target: window, clientX: 10, clientY: 50 })],
+    const startEvent = new TouchEvent('touchstart', {
+      touches: [{ identifier: 0, clientX: 10, clientY: 50 } as any],
     });
-    const touchEnd = new TouchEvent('touchend', {
-      changedTouches: [new Touch({ identifier: 0, target: window, clientX: 100, clientY: 55 })],
+    const endEvent = new TouchEvent('touchend', {
+      changedTouches: [{ identifier: 0, clientX: 100, clientY: 55 } as any],
     });
-    window.dispatchEvent(touchStart);
-    window.dispatchEvent(touchEnd);
+    window.dispatchEvent(startEvent);
+    window.dispatchEvent(endEvent);
     expect(callback).toHaveBeenCalledWith('right');
   });
 
   test('should detect swipe up', () => {
-    const touchStart = new TouchEvent('touchstart', {
-      touches: [new Touch({ identifier: 0, target: window, clientX: 50, clientY: 100 })],
+    const startEvent = new TouchEvent('touchstart', {
+      touches: [{ identifier: 0, clientX: 50, clientY: 100 } as any],
     });
-    const touchEnd = new TouchEvent('touchend', {
-      changedTouches: [new Touch({ identifier: 0, target: window, clientX: 55, clientY: 20 })],
+    const endEvent = new TouchEvent('touchend', {
+      changedTouches: [{ identifier: 0, clientX: 55, clientY: 20 } as any],
     });
-    window.dispatchEvent(touchStart);
-    window.dispatchEvent(touchEnd);
+    window.dispatchEvent(startEvent);
+    window.dispatchEvent(endEvent);
     expect(callback).toHaveBeenCalledWith('up');
   });
 
   test('should detect swipe left', () => {
-    const touchStart = new TouchEvent('touchstart', {
-      touches: [new Touch({ identifier: 0, target: window, clientX: 100, clientY: 50 })],
+    const startEvent = new TouchEvent('touchstart', {
+      touches: [{ identifier: 0, clientX: 100, clientY: 50 } as any],
     });
-    const touchEnd = new TouchEvent('touchend', {
-      changedTouches: [new Touch({ identifier: 0, target: window, clientX: 10, clientY: 55 })],
+    const endEvent = new TouchEvent('touchend', {
+      changedTouches: [{ identifier: 0, clientX: 10, clientY: 55 } as any],
     });
-    window.dispatchEvent(touchStart);
-    window.dispatchEvent(touchEnd);
+    window.dispatchEvent(startEvent);
+    window.dispatchEvent(endEvent);
     expect(callback).toHaveBeenCalledWith('left');
   });
 
   test('should detect swipe down', () => {
-    const touchStart = new TouchEvent('touchstart', {
-      touches: [new Touch({ identifier: 0, target: window, clientX: 50, clientY: 10 })],
+    const startEvent = new TouchEvent('touchstart', {
+      touches: [{ identifier: 0, clientX: 50, clientY: 10 } as any],
     });
-    const touchEnd = new TouchEvent('touchend', {
-      changedTouches: [new Touch({ identifier: 0, target: window, clientX: 55, clientY: 100 })],
+    const endEvent = new TouchEvent('touchend', {
+      changedTouches: [{ identifier: 0, clientX: 55, clientY: 100 } as any],
     });
-    window.dispatchEvent(touchStart);
-    window.dispatchEvent(touchEnd);
+    window.dispatchEvent(startEvent);
+    window.dispatchEvent(endEvent);
     expect(callback).toHaveBeenCalledWith('down');
   });
 

@@ -38,18 +38,6 @@ export const OnScreenControls: React.FC<Props> = ({ onDirection }) => {
           className={`control-button control-${dir}`}
           aria-label={label}
           onClick={() => handleClick(dir)}
-          onKeyDown={(e) => {
-            // Handle activation via Enter or Space (including variations across browsers)
-            if (
-              e.key === 'Enter' ||
-              e.key === ' ' ||
-              e.key === 'Space' ||
-              e.code === 'Space'
-            ) {
-              e.preventDefault();
-              handleClick(dir);
-            }
-          }}
         >
           {symbol}
         </button>

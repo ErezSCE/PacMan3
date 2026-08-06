@@ -23,7 +23,6 @@ class InputHandler {
   }
 
 
-  /** Initialise event listeners */
   private initialized: boolean = false;
 
   /** Initialise event listeners */
@@ -119,7 +118,7 @@ class InputHandler {
     let direction: Direction = 'none';
     if (absDx > absDy && absDx > this.swipeThreshold) {
       direction = dx > 0 ? 'right' : 'left';
-    } else if (absDy > this.swipeThreshold) {
+    } else if (absDy > absDx && absDy > this.swipeThreshold) {
       direction = dy > 0 ? 'down' : 'up';
     }
     if (direction !== 'none') {
