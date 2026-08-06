@@ -7,14 +7,14 @@ self.addEventListener('install', (event) => {
     // Add other static assets as needed
   ];
   event.waitUntil(
-    caches.open('static-cache').then((cache) => cache.addAll(urlsToCache))
+    self.caches.open('static-cache').then((cache) => cache.addAll(urlsToCache))
   );
 });
 
 self.addEventListener('fetch', (event) => {
   // Try network first, fallback to cache when offline
   event.respondWith(
-    fetch(event.request).catch(() => caches.match(event.request).then((response) => {
+    fetch(event.request).catch(() => self.caches.match(event.request).then((response) => {
       // If request is for a navigation page, serve offline fallback
       if (event.request.mode === 'navigate') {
         return caches.match('/offline.html');
