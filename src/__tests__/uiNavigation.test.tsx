@@ -26,8 +26,14 @@ test('full UI navigation flow works correctly', async () => {
 
   // Countdown should appear
   expect(screen.getByText('3')).toBeInTheDocument();
-  // Fast-forward countdown: 3 -> 2 -> 1 -> GO (each step 1000ms)
-  act(() => { jest.advanceTimersByTime(3000); });
+  // Advance to 2
+  act(() => { jest.advanceTimersByTime(1000); });
+  expect(screen.getByText('2')).toBeInTheDocument();
+  // Advance to 1
+  act(() => { jest.advanceTimersByTime(1000); });
+  expect(screen.getByText('1')).toBeInTheDocument();
+  // Advance to GO
+  act(() => { jest.advanceTimersByTime(1000); });
   expect(screen.getByText('GO')).toBeInTheDocument();
 
   // After GO, advance the goDelayMs (default 1000ms) to transition to game screen
