@@ -124,6 +124,8 @@ export class GameEngine {
     // FPS monitoring – warn if below threshold.
     const fps = 1000 / delta;
     if (fps < this.fpsThreshold) {
+      // Warning emitted when FPS drops below threshold. Engine continues updating;
+      // throttling or additional actions can be added here if desired.
       this.warningCallback(`FPS drop detected: ${fps.toFixed(1)} FPS`);
     }
 
