@@ -25,7 +25,8 @@ export const ResponsiveLayout: React.FC = () => {
         clearTimeout(timeoutId);
       }
       // Debounce using a short timeout to batch rapid resize events
-      timeoutId = window.setTimeout(() => {
+      // Debounce delay set to 100ms for resize handling
+    timeoutId = window.setTimeout(() => {
         setLabel(getLabel(window.innerWidth));
         timeoutId = undefined;
       }, 100);
