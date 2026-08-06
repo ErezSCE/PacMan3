@@ -9,13 +9,18 @@ export const Countdown: React.FC = () => {
   const [step, setStep] = useState<number>(3);
 
   useEffect(() => {
-    if (step < 0) {
-      // Countdown finished, go to game screen
-      dispatch({ type: 'SET_SCREEN', payload: 'game' });
-      return;
+    if (step > 0) {
+      // Continue countdown
+      const timer = setTimeout(() => setStep(step - 1), 1000);
+      return () => clearTimeout(timer);
     }
-    const timer = setTimeout(() => setStep(step - 1), 1000);
-    return () => clearTimeout(timer);
+    if (step === 0) {
+      // Show GO then transition immediately (next tick)
+      const goTimer = setTimeout(() => {
+        dispatch({ type: 'SET_SCREEN', payload: 'game' });
+      }, 0);
+      return () => clearTimeout(goTimer);
+    }
   }, [step, dispatch]);
 
   const display = step > 0 ? step.toString() : 'GO';
