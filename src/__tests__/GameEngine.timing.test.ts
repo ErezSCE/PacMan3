@@ -1,7 +1,7 @@
 import { GameEngine } from '../GameEngine';
 
 describe('GameEngine pause and resume behavior', () => {
-  let originalNow: () => number;
+
   let currentTime: number;
   let rafCallbacks: FrameRequestCallback[];
   let requestSpy: jest.SpyInstance;
