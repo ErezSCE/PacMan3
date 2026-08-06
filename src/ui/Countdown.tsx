@@ -17,26 +17,33 @@ export const Countdown: React.FC<CountdownProps> = ({ goDelayMs = 1000 }) => {
   const { dispatch } = useContext(UIContext);
   const [step, setStep] = useState<number>(3);
 
+  // Effect for countdown steps > 0 using setInterval
   useEffect(() => {
-    // Timer logic depends on the current step.
-    // When step > 0, decrement every 1000 ms.
-    // When step === 0, wait for goDelayMs before navigating to the game screen.
+    if (step <= 0) {
+      return undefined;
+    }
+    const intervalId = setInterval(() => {
+      setStep(prev => {
+        if (prev <= 1) {
+          clearInterval(intervalId);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(intervalId);
+  }, [step]);
 
-    // Separate timing logic for readability
-    // When step > 0, decrement the countdown every second
-    // When step === 0, show "GO" for a short duration before transitioning to the game screen
-    let timer: ReturnType<typeof setTimeout>;
-    if (step > 0) {
-      // Continue countdown
-      timer = setTimeout(() => setStep(step - 1), 1000);
-    } else if (step === 0) {
-      // Show GO then transition after a short visible delay (e.g., 1000 ms)
-      timer = setTimeout(() => {
+  // Effect for handling the "GO" step and dispatching after the delay
+  useEffect(() => {
+    if (step === 0) {
+      const timer = setTimeout(() => {
         dispatch({ type: 'SET_SCREEN', payload: 'game' });
       }, goDelayMs);
+      return () => clearTimeout(timer);
     }
-    return () => clearTimeout(timer);
-  }, [step, dispatch]);
+    return undefined;
+  }, [step, goDelayMs, dispatch]);
 
   const display = step > 0 ? step.toString() : 'GO';
 

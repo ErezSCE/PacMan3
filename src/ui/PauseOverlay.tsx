@@ -20,8 +20,8 @@ export const PauseOverlay: React.FC = () => {
   return (
     <section aria-label="pause overlay" role="dialog">
       <h2>Paused</h2>
-      <button onClick={handleResume}>Resume Game</button>
-      <button onClick={handleExit}>Exit to Main Menu</button>
+      <button type="button" onClick={handleResume}>Resume Game</button>
+      <button type="button" onClick={handleExit}>Exit to Main Menu</button>
     </section>
   );
 };

@@ -36,7 +36,7 @@ export const GameOverScreen: React.FC = () => {
         onChange={handleChange}
         aria-label="Enter your initials"
       />
-      <button onClick={handleSubmit}>Submit Score</button>
+      <button type="button" onClick={handleSubmit}>Submit Score</button>
     </section>
   );
 };
