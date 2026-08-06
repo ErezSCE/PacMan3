@@ -3,6 +3,10 @@
  * Uses ts-jest to transform TypeScript and JSX files.
  */
 module.exports = {
+  moduleNameMapper: {
+    "\\.(css|less|scss|sass)$": "<rootDir>/src/__mocks__/styleMock.js",
+  },
+
   preset: 'ts-jest',
   testEnvironment: 'jsdom',
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
